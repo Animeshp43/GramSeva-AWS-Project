@@ -7,7 +7,7 @@ The objective of this project was to deploy a multi-tier Rural Services Portal o
 
 GramSeva is a cloud-hosted rural services platform where farmers and village families can request services such as **Farming Advice, Tractor on Rent, Soil Check and Animal Doctor** in **English, हिंदी and मराठी**. It was developed using:
 
-•	Frontend: HTML, CSS, JavaScript (English / Hindi / Marathi language switcher)
+•	Frontend: HTML, CSS
 
 •	Backend: PHP 8.2 
 
@@ -15,9 +15,7 @@ GramSeva is a cloud-hosted rural services platform where farmers and village fam
 
 •	Database: Amazon RDS MySQL 
 
-# Architecture
 
-![AWS Project Architecture](architecture/gramseva-architecture.png)
 
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________
 The project was deployed on AWS using a multi-tier architecture. A custom VPC was designed with public and private subnets across multiple Availability Zones. The application servers were hosted on Amazon EC2, while the database was hosted securely on Amazon RDS in private subnets.
@@ -69,11 +67,17 @@ CloudWatch alarms and SNS notifications were configured for infrastructure monit
 7. **DNS**
 
 - Route 53
+
+<img width="960" height="540" alt="domain" src="https://github.com/user-attachments/assets/35588522-fa39-432d-ab09-e6523f69151a" />
+
+<img width="960" height="539" alt="Request a service" src="https://github.com/user-attachments/assets/93c0cbb5-20d6-4f3f-bd36-93c821815e11" />
+
+
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________
 # Step 1 – Create Networking Components
 **1. Create VPC**
 
->Name: gramseva-vpc
+>Name: my-vpc-virginia
 
 >CIDR: 10.10.0.0/16
 
@@ -91,51 +95,48 @@ Purpose:
 
 >CIDR: 10.10.1.0/24
 
->AZ: us-east-2a
+>AZ: us-east-1a
 
 >**Public Subnet 2** (public-subnet2)
 
 >CIDR: 10.10.2.0/24
 
->AZ: us-east-2b
+>AZ: us-east-1b
 
 >**Public Subnet 3** (public-subnet3)
 
 >CIDR: 10.10.3.0/24
 
->AZ: us-east-2c
+>AZ: us-east-1c
 
 >**Private Subnet 4** (private-subnet4)
 
 >CIDR: 10.10.4.0/24
 
->AZ: us-east-2a
-
->**Private Subnet 5** (private-subnet5)
-
->CIDR: 10.10.5.0/24
-
->AZ: us-east-2b
+>AZ: us-east-1d
 
 Enable **Auto-assign public IPv4 address** on the 3 public subnets.
 
 Purpose:
 
-- Public subnets host internet-facing resources (Jump Server, NAT Gateway, Web Servers).
-- Private subnets host database resources.
-- RDS needs a DB subnet group that covers 2 Availability Zones, so Private Subnet 5 is used as the second one.
+Public subnets host internet-facing resources.
+Private subnet hosts database resources.
 
-![Website Screenshot](screenshots/02-subnets.png)
+<img width="779" height="331" alt="subnets" src="https://github.com/user-attachments/assets/a93b1caa-62c2-4860-bb3d-9dfe87770cb1" />
+
 
 **3. Create Internet Gateway**
 
->Create IGW (gramseva-igw)
+Create IGW
 
->Attach to gramseva-vpc
+Attach to my-vpc-virginia
 
 Purpose:
 
 - Allows internet access to public resources.
+
+<img width="781" height="208" alt="internet gateway" src="https://github.com/user-attachments/assets/9d750a45-a703-4e0b-917e-fdbeb387560c" />
+
 
 **4. Create NAT Gateway**
 
