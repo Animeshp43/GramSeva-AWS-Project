@@ -324,13 +324,12 @@ Set permissions:
 
 > `chmod -R 755 /usr/share/nginx/html/public`
 
-(The `includes` folder stays outside the public web root, so `db_connect.php` can never be opened from a browser.)
+<img width="808" height="434" alt="winscp" src="https://github.com/user-attachments/assets/e8f8f37b-5e72-4638-8a05-374b33dcf9e1" />
 
-![Website Screenshot](screenshots/08-winscp-transfer.png)
 
 # Step 6 – Create Amazon S3 Bucket
 
->Create Bucket: gramseva-project-bucket-yourname  (Region: us-east-2)
+>Create Bucket: my-s3-awsproject-01  (Region: us-east-2)
 
 Configuration:
 
@@ -360,7 +359,7 @@ Purpose:
 - Stores static images.
 - Reduces EC2 storage usage.
 
-![Website Screenshot](screenshots/09-s3-bucket.png)
+<img width="959" height="326" alt="S3-bucket" src="https://github.com/user-attachments/assets/6ae0d935-4bbf-49ca-9166-f76c008cd407" />
 
 # Step 7 – Update Application Image URLs
 
@@ -378,11 +377,7 @@ Update all image references (logo + 4 service images).
 
 # Step 8 – Create Amazon RDS MySQL
 
-Create DB Subnet Group:
-
->Name: gramseva-subnet-group
-
->Subnets: private-subnet4 and private-subnet5
+>Subnet: private-subnet4 
 
 Create Database:
 
@@ -396,7 +391,6 @@ Connectivity:
 
 - Same VPC
 - Private Access (Public access: No)
-- Subnet Group: gramseva-subnet-group
 - Security Group: db-sg
 
 Disable:
@@ -407,7 +401,7 @@ Disable:
 
 Launch RDS and copy the **endpoint** once the status is Available.
 
-![Website Screenshot](screenshots/10-rds-created.png)
+<img width="732" height="223" alt="database" src="https://github.com/user-attachments/assets/74a9fb98-cac3-41b0-8400-1c09457d18f9" />
 
 # Step 9 – Configure Database Connection
 
@@ -415,15 +409,13 @@ Create the real config file from the example (this file is never committed to Gi
 
 >`cd /usr/share/nginx/html/includes`
 
->`cp db_connect.example.php db_connect.php`
-
 >`vim db_connect.php`
 
 Update:
 
-    $servername = "gramseva-db.xxxxx.us-east-2.rds.amazonaws.com";
+    $servername = "gramseva-db.xxxxx.us-east-2.rds.amazonaws.com"; //your endpoint 
     $username = "admin";
-    $password = "YOUR_STRONG_PASSWORD";
+    $password = "YOUR_STRONG_PASSWORD"; //your password
     $dbname = "gramseva_db";
 
 Save and exit.
@@ -432,7 +424,7 @@ Save and exit.
 
 Connect from DB Server (login through the jump server):
 
->`ssh -i db-keypair.pem ec2-user@<database-server-private-ip>`
+>`ssh -i db.pem ec2-user@<database-server-private-ip>`
 
 Install MySQL Client:
 
@@ -440,11 +432,11 @@ Install MySQL Client:
 
 Connect:
 
-    mysql -h <RDS-ENDPOINT> -u admin -p
+    mysql -h <RDS-ENDPOINT> -u admin -p<your password>
 
 Create database:
 
-    CREATE DATABASE gramseva_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    CREATE DATABASE gramseva_db;
     USE gramseva_db;
     Create table:
 
@@ -461,32 +453,32 @@ Create database:
 
 );
 
-(Or simply run the ready-made file: `mysql -h <RDS-ENDPOINT> -u admin -p < database/schema.sql`)
-
 Verify:
 
     SHOW TABLES;
 	DESC service_requests;
 
-![Database Entries](screenshots/11-db-table.png)
+<img width="947" height="403" alt="database-information" src="https://github.com/user-attachments/assets/994d8288-33e0-4b1a-bff2-6799421e3947" />
+
 
 # Step 11 – Configure Domain
 
-Create hostname using No-IP.
+Open AWS Console → Route 53.
 
-Example:
+Go to Hosted zones → Create hosted zone.
+Enter your domain name:
 
-gramseva.hopto.org
-
-Point domain to:
-
-App Server Public IP (for testing), then Application Load Balancer DNS (after Step 17)
+> `anitechy.in`
 
 Purpose:
+- Route 53 provides DNS resolution for the application.
+- Users access the application using your custom domain instead of an IP address.
+- The domain points to the Application Load Balancer, which distributes traffic to the Auto Scaling web servers.
 
-- Access application using a friendly URL.
+<img width="730" height="236" alt="hosted zone" src="https://github.com/user-attachments/assets/6f04c261-33f4-49c7-a88a-8d3a866c2dd0" />
 
-![Website Screenshot](screenshots/12-domain-noip.png)
+Records:
+<img width="960" height="395" alt="Records" src="https://github.com/user-attachments/assets/a40c6c14-6707-4102-a76a-3a7895f1a32c" />
 
 # Step 12 – Configure Nginx Virtual Host
 
@@ -500,7 +492,7 @@ Example:
 
 >listen 80 default_server;
 
->server_name gramseva.hopto.org;
+>server_name gramseva.hopto.org; //your domain name
 
 >root /usr/share/nginx/html/public;
 
@@ -538,9 +530,7 @@ Restart:
 
 Open:
 
->`http://gramseva.hopto.org`
-
-Switch the language: **English / हिंदी / मराठी**
+>`anitechy.in`
 
 Click **Request a Service**, submit the form.
 
@@ -548,12 +538,14 @@ Verify data inside RDS:
 
 >`SELECT * FROM service_requests;`
 
-![Website Screenshot](screenshots/16-request-form.png)
-![Database Entries](screenshots/17-db-entries.png)
+<img width="960" height="539" alt="Request a service" src="https://github.com/user-attachments/assets/63894b36-a130-4483-96f0-c336b763fd01" />
+
+<img width="947" height="403" alt="database-information" src="https://github.com/user-attachments/assets/8c2e5cce-35fb-4e60-9f19-c61a4b9c293b" />
+
 
 # Step 14 – Create AMI
 
-From working App Server:
+From working Web-Server:
 
 Actions
 
@@ -563,17 +555,17 @@ Actions
 
 Name:
 
->gramseva-app-ami
+>webserver-image
 
 Purpose:
 
 - Creates reusable application image.
 
-![Website Screenshot](screenshots/18-ami.png)
+<img width="784" height="222" alt="AMI" src="https://github.com/user-attachments/assets/d2f75bb3-9643-4078-aee7-bd1c4d3abdfb" />
 
 # Step 15 – Create Launch Template
 
-Name: gramseva-lt
+Name: AWS-gramseva-project
 
 Use:
 
@@ -583,19 +575,19 @@ Configure:
 
 Instance Type (t3.micro)
 
-Security Group (web-sg)
+Security Group (public-sg)
 
-Key Pair (app-keypair)
+Key Pair (Webserver)
 
 Purpose:
 
 - Standard template for Auto Scaling.
 
-![Website Screenshot](screenshots/19-launch-template.png)
+<img width="766" height="199" alt="launch Template" src="https://github.com/user-attachments/assets/6ad4834a-15df-4e7d-8a26-e71e4137a5c4" />
 
 # Step 16 – Create Target Group
 
->Name: gramseva-tg
+>Name: TG-1
 
 >Type: Instance
 
@@ -607,29 +599,27 @@ Purpose:
 
 Register application instances.
 
-![Website Screenshot](screenshots/20-target-group.png)
+<img width="774" height="211" alt="Target-Group" src="https://github.com/user-attachments/assets/15200886-7259-4ee3-82fd-738383df4ee9" />
 
 # Step 17 – Create Application Load Balancer
 
-Name: gramseva-alb
+Name: lb-gramseva
 
 Configure: Internet Facing, Public Subnets 1, 2 and 3 with HTTP Listener (80)
 
-Security Group: alb-sg
-
-Attach: Target Group (gramseva-tg)
+Attach: Target Group (TG-1)
 
 Purpose:
 
 - Distributes traffic across multiple servers.
 
-![Website Screenshot](screenshots/21-load-balancer.png)
+<img width="770" height="235" alt="Load-Balancer" src="https://github.com/user-attachments/assets/06d4dc70-9f45-4d71-8f63-60a93fe8c0c2" />
 
 # Step 18 – Create Auto Scaling Group
 
-Name: gramseva-asg
+Name: ASG-GRAMSEVA
 
-Use Launch Template (gramseva-lt).
+Use Launch Template (AWS-gramseva-project).
 
 Subnets: public-subnet2 and public-subnet3
 
@@ -639,44 +629,42 @@ Configuration:
 
 >Minimum: 2
 
->Maximum: 4
+>Maximum: 5
 
->Scaling policy: Target tracking – Average CPU 50%
+>Scaling policy: Target tracking – Average CPU 80%
 
 Attach:
 
->Application Load Balancer (gramseva-tg) with ELB health checks ON
+>Application Load Balancer (lb-gramseva) with ELB health checks ON
 
 Purpose:
 
 - Automatically adds/removes instances.
 
-![Auto Scaling](screenshots/22-auto-scaling.png)
+<img width="752" height="253" alt="Auto Scaling Group" src="https://github.com/user-attachments/assets/7cf47edf-c490-4a38-bc0c-8961f18cc9f1" />
 
 # Step 19 – Monitoring
 1. CloudWatch
 
 Create alarms:
 
->CPU > 70%  (gramseva-high-cpu)
+CPU > 80%
 
->Unhealthy hosts >= 1  (gramseva-unhealthy-hosts)
+CPU < 20%
 
->RDS CPU > 80%  (gramseva-rds-cpu)
-
-![Auto Scaling](screenshots/23-cloudwatch-alarms.png)
+<img width="763" height="296" alt="Alarm" src="https://github.com/user-attachments/assets/76541642-9e07-42a0-966c-848447c8360e" />
 
 2. SNS
 
-Create topic: gramseva-alerts
+Create topic: my-topic
 
-Subscribe email.
+Create Subscription-email.
 
 Purpose:
 
 - Sends notifications when alarms trigger.
 
-![Auto Scaling](screenshots/24-sns-notification.png)
+<img width="745" height="211" alt="SNS" src="https://github.com/user-attachments/assets/a48dd33f-d98c-46ef-abb0-6c216b688216" />
 
 _____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 # Architecture Outcome
@@ -691,18 +679,8 @@ ________________________________________________________________________________
 - ✅ Managed database using Amazon RDS MySQL
 - ✅ Static content delivery through Amazon S3
 - ✅ Monitoring and alerting using CloudWatch and SNS
-- ✅ Farmer-friendly multilingual website (English, हिंदी, मराठी)
 
 **This design closely resembles a real-world production environment and demonstrates core AWS Infrastructure, Networking, Security, High Availability, and Monitoring concepts.
 **
 
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________
-# More Documentation
-
-- [Project Execution Flow](docs/execution-flow.md)
-- [Project Outcome](docs/project-outcome.md)
-- [Full Deployment Guide](docs/deployment-guide.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [Clean-up (avoid AWS charges)](docs/cleanup.md)
-
-**Author:** YOUR NAME  |  [GitHub](https://github.com/your-username)  |  [LinkedIn](https://www.linkedin.com/in/your-profile)
