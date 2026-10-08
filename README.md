@@ -15,6 +15,7 @@ GramSeva is a cloud-hosted rural services platform where farmers and village fam
 
 •	Database: Amazon RDS MySQL 
 
+<img width="1536" height="1024" alt="GramSeva AWS Architecture Flow" src="https://github.com/user-attachments/assets/8218b020-d0be-4d48-8d8c-40737484bf5e" />
 
 
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________
@@ -150,7 +151,8 @@ Purpose:
 
 - Allows private resources to access internet for updates without exposing them publicly.
 
-![Website Screenshot](screenshots/03-igw-nat.png)
+<img width="777" height="191" alt="nat" src="https://github.com/user-attachments/assets/8051e996-8857-4570-a034-7cdfb6beee29" />
+
 
 **5. Configure Route Tables**
 
@@ -179,63 +181,33 @@ Route:
 Associate with:
 
 >Private Subnet 4
->Private Subnet 5
 
 Purpose:
 
 - Controls traffic flow inside VPC.
 
-![Website Screenshot](screenshots/04-route-tables.png)
+<img width="778" height="248" alt="route table" src="https://github.com/user-attachments/assets/8a5118e4-3c4b-4a4f-8ffd-236741a342ad" />
+
 
 # Step 2 – Configure Security Groups
 
 Create:
 
->jump-sg (Jump Server)
+public-sg (App Servers)
 
-- Inbound Rules as
+Inbound Rules as
+SSH (22) → My IP
 
-1. SSH  (22)   → My IP
+HTTP (80) → Anywhere
 
-- Outbound as
+Outbound as
+All Traffic → Anywhere
+private-sg (Database)
 
-1. All Traffic → Anywhere
-
->alb-sg (Load Balancer)
-
-- Inbound Rules as
-
-1. HTTP (80)   → Anywhere
-
-- Outbound as
-
-1. All Traffic → Anywhere
-
->web-sg (App Servers)
-
-- Inbound Rules as
-
-1. HTTP (80)   → Source alb-sg
-
-2. SSH  (22)   → Source jump-sg
-
-- Outbound as
-
-1. All Traffic → Anywhere
-
->db-sg (Database)
-
-- Inbound Rules as
-
-1. MYSQL (3306)  Source → web-sg
-
-2. MYSQL (3306)  Source → db-sg (itself)
-
-3. SSH  (22)   → Source jump-sg
-
-- Outbound as
-
-1. All Traffic
+Inbound Rules as
+MYSQL (3306) Source → SG-1
+Outbound as
+All Traffic
 
 Purpose:
 
@@ -243,7 +215,8 @@ Purpose:
 - Web servers accept HTTP only from the Load Balancer.
 - SSH is allowed only through the Jump Server.
 
-![Website Screenshot](screenshots/05-security-groups.png)
+<img width="745" height="42" alt="security group" src="https://github.com/user-attachments/assets/97b2594f-215e-4331-907b-2008d0a75111" />
+
 
 # Step 3 – Launch EC2 Instances
 
@@ -251,11 +224,11 @@ First Launch:
 
 >Amazon Linux 2023 Jump Server (jump-server)   
 
-inside Public Subnet 1 with security group jump-sg and 
+inside Public Subnet 1 with security group public-sg and 
 
 With Public IP Enabled
 
-Key pair: jump-keypair
+Key pair: jump-server
 
 Purpose:
 
@@ -265,9 +238,9 @@ then launch:
 
 >Amazon Linux 2023 Application Server (app-server)
 
-inside Public Subnet 2 with security group web-sg 
+inside Public Subnet 2 with security group public-sg 
 
-Key pair: app-keypair
+Key pair: web-project
 
 Purpose:
 
@@ -277,17 +250,18 @@ Now Launch DBServer:
 
 >Database Server (database-server) – Amazon Linux 2023 
 
-inside Private Subnet 4 with security group db-sg
+inside Private Subnet 4 with security group private-sg
 
 with No Public IP
 
-Key pair: db-keypair
+Key pair: database-project
 
 Purpose:
 
 - Used to access private resources (MySQL client to reach RDS).
 
-![Website Screenshot](screenshots/06-ec2-instances.png)
+<img width="778" height="304" alt="instances" src="https://github.com/user-attachments/assets/1870ed76-f279-4945-b34c-46c4330946aa" />
+
 
 # Step 4 – Configure Application Server
 
