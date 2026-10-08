@@ -5,7 +5,7 @@ The objective of this project was to deploy a multi-tier Rural Services Portal o
 
 # **Project Overview**
 
-GramSeva is a cloud-hosted rural services platform where farmers and village families can request services such as **Farming Advice, Tractor on Rent, Soil Check and Animal Doctor** in **English, हिंदी and मराठी**. It was developed using:
+GramSeva is a cloud-hosted rural services platform where farmers and village families can request services such as **Farming Advice, Tractor on Rent, Soil Check and Animal Doctor** . It was developed using:
 
 •	Frontend: HTML, CSS
 
