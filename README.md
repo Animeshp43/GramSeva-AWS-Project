@@ -267,23 +267,19 @@ Purpose:
 
 Copy the project files to the app server through the jump server (WinSCP to jump-server, then):
 
->`ssh -i jump-keypair.pem ec2-user@<jump-server-public-ip>`
+>`ssh -i web.pem ec2-user@<jump-server-public-ip>`
 
 >`chmod 400 app-keypair.pem`
 
->`scp -i app-keypair.pem -r app/public app/includes app/nginx scripts ec2-user@<app-server-private-ip>:/home/ec2-user/`
-
 >`ssh -i app-keypair.pem ec2-user@<app-server-private-ip>`
-
->`sudo -i`
 
 Update packages:
 
->`dnf update -y`
+>`sudo update -y`
 
 Install Nginx:
 
->`dnf install -y nginx`
+>`sudo install -y nginx`
 
 >`systemctl start nginx`
 
@@ -295,13 +291,11 @@ Verify:
 
 Install PHP:
 
->`dnf install -y php8.2 php-fpm php-mysqlnd php-pdo php-mbstring`
+>`sudo install -y php8.2 php-fpm php-mysqlnd php-pdo php-mbstring`
 
 >`php -v`
 
 Let PHP-FPM run as the nginx user (prevents 502 errors):
-
->`sed -i 's/^user = apache/user = nginx/; s/^group = apache/group = nginx/' /etc/php-fpm.d/www.conf`
 
 >`systemctl start php-fpm`
 
@@ -309,9 +303,10 @@ Let PHP-FPM run as the nginx user (prevents 502 errors):
 
 >`systemctl restart nginx`
 
-(All the commands above are also available as one script: `scripts/setup-app-server.sh`)
+(All the commands above are also available as one script: 
 
-![Website Screenshot](screenshots/07-app-server-setup.png)
+<img width="712" height="739" alt="APPServer" src="https://github.com/user-attachments/assets/e0f56298-ebc2-4da1-b989-fa03deacac29" />
+
 
 # Step 5 – Upload Website Files
 
@@ -441,7 +436,7 @@ Connect from DB Server (login through the jump server):
 
 Install MySQL Client:
 
->`sudo dnf install -y mariadb105`
+>`sudo sudo install -y mariadb105`
 
 Connect:
 
