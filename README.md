@@ -55,7 +55,6 @@ CloudWatch alarms and SNS notifications were configured for infrastructure monit
 4. **Database**
 
 - Amazon RDS MySQL 
-- DB Subnet Group 
 
 5. **High Availability**
 
@@ -69,11 +68,7 @@ CloudWatch alarms and SNS notifications were configured for infrastructure monit
 
 7. **DNS**
 
-- No-IP Dynamic DNS
-
-![Website Screenshot](screenshots/13-website-english.png)
-![Website Screenshot](screenshots/14-website-hindi.png)
-![Website Screenshot](screenshots/15-website-marathi.png)
+- Route 53
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________
 # Step 1 – Create Networking Components
 **1. Create VPC**
@@ -88,7 +83,7 @@ Purpose:
 
 - Creates an isolated network for all AWS resources.
 
-![Website Screenshot](screenshots/01-vpc.png)
+<img width="778" height="279" alt="MYVPC" src="https://github.com/user-attachments/assets/bf55057c-8741-4f17-9844-d180d39d50de" />
 
 **2. Create Subnets**
 
